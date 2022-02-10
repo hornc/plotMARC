@@ -27,6 +27,7 @@ BIN_EARLY = 1400  # no date / suspicious date bin
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
     parser.add_argument('--debug', '-d', help='turn on debug output', action='store_true')
+    parser.add_argument('--quiet', '-q', help='suppress pymarc reader warnings', action='store_true')
     args = parser.parse_args()
 
     fig, axes = plt.subplots(2, 1)
@@ -42,7 +43,7 @@ if __name__ == '__main__':
             continue
         print(f)
         with open(f, 'rb') as marcdata:
-            records = MARCReader(marcdata, to_unicode=True, permissive=True)
+            records = MARCReader(marcdata, to_unicode=True, permissive=True, hide_utf8_warnings=args.quiet)
             for record in records:
                 if not record:
                     continue
