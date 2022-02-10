@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import os
 import re
 from datetime import datetime
@@ -7,9 +8,11 @@ from matplotlib import pyplot as plt
 from matplotlib_venn import venn3
 
 
-"""
+ABOUT = """
 Script to analyse one or more MARC21 collections
 for identifier representation, and dates covered.
+
+By default looks for *.mrc files in the current directory.
 
 """
 
@@ -22,6 +25,10 @@ BIN_EARLY = 1400  # no date / suspicious date bin
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
+    parser.add_argument('--debug', '-d', help='turn on debug output', action='store_true')
+    args = parser.parse_args()
+
     fig, axes = plt.subplots(2, 1)
     # A: ISBN, B: LCCN, C: OCLC
     categories = [0] * 8
