@@ -2,7 +2,8 @@
 
 ## Basic usage
 
-From a directory containing one or more binary [MARC21](https://www.loc.gov/marc/bibliographic/) format for bibliographic data files (with extension `.mrc`), run
+From a directory containing one or more binary [MARC21](https://www.loc.gov/marc/bibliographic/) format for bibliographic data files (with extension `.mrc`)
+representing a bibliographic collection, run:
 
     ./plotMARC.py
     
