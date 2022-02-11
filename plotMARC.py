@@ -22,6 +22,24 @@ LIMIT = 1000
 RE_DATE = re.compile(r'[12][0-9]{3}')
 BIN_NORMAL = 1700
 BIN_EARLY = 1400  # no date / suspicious date bin
+ILABEL = 'Bibliographic Identifiers'
+DLABEL = 'Publication Dates'
+
+
+def output_tsv(name, venn, dates):
+    print(name.title())
+    print(ILABEL)
+    print('\t'.join(['No ID', 'A', 'B', 'C', 'D', 'E', 'F', 'H']))
+    print('\t'.join([str(v) for v in venn]))
+    print(DLABEL)
+    date_output(dates)
+
+
+def date_output(dates):
+    print("Date\tCount")
+    for d in sorted(dates):
+        print(f'{d}\t{dates[d]}')
+    return dates
 
 
 if __name__ == '__main__':
@@ -81,10 +99,11 @@ if __name__ == '__main__':
                 i += 1
                 if args.debug and i > LIMIT:
                     break
-    print('Dates:', sorted(dates), [dates[k] for k in sorted(dates)])
-    print('No dates:', dates[0])
-    print('No IDs:', categories[0])
-    print('Venn Categories:', categories)
+
+    # Output tsv data to STDOUT:
+    output_tsv(name, categories, dates)
+
+    # Output png format plot to file:
     venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
     sdates = sorted(dates)
     bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2])//BINSIZE)]
@@ -97,8 +116,8 @@ if __name__ == '__main__':
     axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
     axes[1].set_xticks(range(len(dates)))
     axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
-    axes[0].set_title('Bibliographic Identifiers', fontsize=14)
-    axes[1].set_title('Publication Dates', fontsize=14, loc='left')
+    axes[0].set_title(ILABEL, fontsize=14)
+    axes[1].set_title(DLABEL, fontsize=14, loc='left')
     axes[1].set_ylabel('records', fontstyle='italic')
 
     plt.savefig(f'{name}.png')
