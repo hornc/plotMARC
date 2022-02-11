@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
     parser.add_argument('--debug', '-d', help='turn on debug output', action='store_true')
     parser.add_argument('--quiet', '-q', help='suppress pymarc reader warnings', action='store_true')
+    parser.add_argument('--title', '-t', help='title')
     args = parser.parse_args()
 
     fig, axes = plt.subplots(2, 1)
@@ -37,7 +38,11 @@ if __name__ == '__main__':
     dates = {0: 0, BIN_EARLY: 0}
     thisyear = datetime.now().year
     i = 0
-    name = os.path.basename(os.getcwd())
+    if args.title:
+        name = args.title
+    else:
+        name = os.path.basename(os.getcwd())
+
     for f in os.listdir():
         if not f.endswith('.mrc'):
             continue
@@ -51,9 +56,7 @@ if __name__ == '__main__':
                 lccn = record['010']
                 oclc = record.get_fields('035')
                 pub = record['260']
-                #print(bool(isbns), bool(lccn), bool(oclc))
                 cat = bool(isbns) + bool(lccn) * 2 + bool(oclc) * 4
-                #print(cat)
                 categories[cat] += 1
                 year = None
                 if pub:
@@ -76,12 +79,12 @@ if __name__ == '__main__':
                     dates[0] += 1
                     #nodate += 1
                 i += 1
-                #if i > LIMIT:
-                #    break
-    print('DATES', sorted(dates), [dates[k] for k in sorted(dates)])
-    print('NODATES', dates[0])
-    print('NO IDS', categories[0])
-    print('ID CATS', categories)
+                if args.debug and i > LIMIT:
+                    break
+    print('Dates:', sorted(dates), [dates[k] for k in sorted(dates)])
+    print('No dates:', dates[0])
+    print('No IDs:', categories[0])
+    print('Venn Categories:', categories)
     venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
     sdates = sorted(dates)
     bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2])//BINSIZE)]
@@ -90,10 +93,13 @@ if __name__ == '__main__':
     # custom bar chart approach
 
     #hist = plt.hist(sdates, weights=[dates[k] for k in sdates], bins=bins, range=(BIN_EARLY - BINSIZE, thisyear + BINSIZE))
+    plt.suptitle(name.title(), fontsize=16, fontweight='bold')
     axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
     axes[1].set_xticks(range(len(dates)))
-    axes[1].set_xticklabels(['ND', 'EARLY'] + sdates[2:], rotation=60)
-    axes[0].set_title(f'{name} identifiers')
-    axes[1].set_title(f'{name} dates')
+    axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
+    axes[0].set_title('Bibliographic Identifiers', fontsize=14)
+    axes[1].set_title('Publication Dates', fontsize=14, loc='left')
+    axes[1].set_ylabel('records', fontstyle='italic')
+
     plt.savefig(f'{name}.png')
 
