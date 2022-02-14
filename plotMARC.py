@@ -29,7 +29,7 @@ DLABEL = 'Publication Dates'
 def output_tsv(name, venn, dates):
     print(name.title())
     print(ILABEL)
-    print('\t'.join(['No ID', 'A', 'B', 'C', 'D', 'E', 'F', 'H']))
+    print('\t'.join(['No ID', 'A', 'B', 'C', 'D', 'E', 'F', 'G']))
     print('\t'.join([str(v) for v in venn]))
     print(DLABEL)
     date_output(dates)
@@ -42,24 +42,16 @@ def date_output(dates):
     return dates
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
-    parser.add_argument('--debug', '-d', help='turn on debug output', action='store_true')
-    parser.add_argument('--quiet', '-q', help='suppress pymarc reader warnings', action='store_true')
-    parser.add_argument('--title', '-t', help='title')
-    args = parser.parse_args()
-
-    fig, axes = plt.subplots(2, 1)
+def marc_extract():
+    """
+    Extract identifier categories and year of publication histogram data
+    from local MARC records.
+    """
     # A: ISBN, B: LCCN, C: OCLC
     categories = [0] * 8
-    nodate = 0
     dates = {0: 0, BIN_EARLY: 0}
     thisyear = datetime.now().year
     i = 0
-    if args.title:
-        name = args.title
-    else:
-        name = os.path.basename(os.getcwd())
 
     for f in os.listdir():
         if not f.endswith('.mrc'):
@@ -95,15 +87,24 @@ if __name__ == '__main__':
                                 year = None
                 if not year:
                     dates[0] += 1
-                    #nodate += 1
                 i += 1
                 if args.debug and i > LIMIT:
                     break
+    return categories, dates
 
-    # Output tsv data to STDOUT:
-    output_tsv(name, categories, dates)
 
-    # Output png format plot to file:
+def tsv_import(filename):
+    """
+    Import category data from a TSV file for plotting.
+    """
+    return name, categories, dates
+
+
+def plot(name, categories, dates):
+    """
+    Output plot to <name>.png
+    """
+    fig, axes = plt.subplots(2, 1)
     venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
     sdates = sorted(dates)
     bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2])//BINSIZE)]
@@ -121,4 +122,31 @@ if __name__ == '__main__':
     axes[1].set_ylabel('records', fontstyle='italic')
 
     plt.savefig(f'{name}.png')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
+    parser.add_argument('--debug', '-d', help='Turn on debug output', action='store_true')
+    parser.add_argument('--quiet', '-q', help='Suppress pymarc reader warnings', action='store_true')
+    parser.add_argument('--title', '-t', help='Title')
+    parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
+    args = parser.parse_args()
+
+    if args.title:
+        name = args.title
+    else:
+        name = os.path.basename(os.getcwd())
+
+    if args.import_:
+        print(f"Import data from {args.import_}...")
+        name, categories, dates = tsv_import(args.import_)
+    else:
+        print("Extract data from MARC records...")
+        categories, dates = marc_extract()
+
+    # Output tsv data to STDOUT:
+    output_tsv(name, categories, dates)
+
+    # Output plot to <name>.png
+    plot(name, categories, dates)
 
