@@ -23,6 +23,7 @@ LIMIT = 1000
 RE_DATE = re.compile(r'[12][0-9]{3}')
 BIN_NORMAL = 1700
 BIN_EARLY = 1400  # no date / suspicious date bin
+DATE_LABELS = ('<1400', '<1700')
 I_LABEL = 'Bibliographic Identifiers'
 D_LABEL = 'Publication Dates'
 ID_CATS = ['No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
@@ -41,8 +42,9 @@ def output_tsv(name, venn, dates):
 
 def date_output(dates):
     print("Date\tCount")
-    for d in sorted(dates):
-        print(f'{d}\t{dates[d]}')
+    for i, d in enumerate(sorted(dates)):
+        label = DATE_LABELS[i] if i < 2 else d
+        print(f'{label}\t{dates[d]}')
     return dates
 
 
