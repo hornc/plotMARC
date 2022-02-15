@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import os
 import re
 from datetime import datetime
@@ -100,6 +101,19 @@ def tsv_import(filename):
     """
     Import category data from a TSV file for plotting.
     """
+    with open(filename) as tsv:
+        read_tsv = csv.reader(tsv, delimiter='\t')
+        name = next(read_tsv)[0]
+        id_title, i_labels = next(read_tsv), next(read_tsv)
+        categories = [int(v) for v in next(read_tsv)]
+        date_title, d_labels = next(read_tsv), next(read_tsv)
+        dates = {}
+        for i, row in enumerate(read_tsv):
+            if i < 2:
+                k = (0, BIN_EARLY)[i]
+            else:
+                k = int(row[0])
+            dates[k] = int(row[1])
     return name, categories, dates
 
 
