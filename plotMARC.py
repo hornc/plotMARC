@@ -22,16 +22,19 @@ LIMIT = 1000
 RE_DATE = re.compile(r'[12][0-9]{3}')
 BIN_NORMAL = 1700
 BIN_EARLY = 1400  # no date / suspicious date bin
-ILABEL = 'Bibliographic Identifiers'
-DLABEL = 'Publication Dates'
+I_LABEL = 'Bibliographic Identifiers'
+D_LABEL = 'Publication Dates'
+ID_CATS = ['No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
+ID_CATS_ABBR = ['No_IDs', 'ISBN', 'LCCN', 'IS+LC', 'OCN', 'IS+OC', 'LC+OC', 'All_3_IDs']
 
 
 def output_tsv(name, venn, dates):
     print(name.title())
-    print(ILABEL)
-    print('\t'.join(['No ID', 'A', 'B', 'C', 'D', 'E', 'F', 'G']))
+    print(I_LABEL)
+    print('\t'.join(ID_CATS_ABBR))
+
     print('\t'.join([str(v) for v in venn]))
-    print(DLABEL)
+    print(D_LABEL)
     date_output(dates)
 
 
@@ -117,8 +120,8 @@ def plot(name, categories, dates):
     axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
     axes[1].set_xticks(range(len(dates)))
     axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
-    axes[0].set_title(ILABEL, fontsize=14)
-    axes[1].set_title(DLABEL, fontsize=14, loc='left')
+    axes[0].set_title(I_LABEL, fontsize=14)
+    axes[1].set_title(D_LABEL, fontsize=14, loc='left')
     axes[1].set_ylabel('records', fontstyle='italic')
 
     plt.savefig(f'{name}.png')
