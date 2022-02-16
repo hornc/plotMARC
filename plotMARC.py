@@ -111,6 +111,8 @@ def tsv_import(filename):
         date_title, d_labels = next(read_tsv), next(read_tsv)
         dates = {}
         for i, row in enumerate(read_tsv):
+            if not row:
+                continue
             if i < 2:
                 k = (0, BIN_EARLY)[i]
             else:
@@ -126,7 +128,9 @@ def plot(name, categories, dates):
     fig, axes = plt.subplots(2, 1)
     venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
     sdates = sorted(dates)
-    bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2])//BINSIZE)]
+    bins = []
+    if len(sdates) > 2:
+        bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2]) // BINSIZE)]
     #bins = len(dates)
     # TODO: follow https://stackoverflow.com/questions/58183804/matplotlib-histogram-with-equal-bars-width for
     # custom bar chart approach
