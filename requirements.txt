@@ -1,3 +1,4 @@
 pymarc >= 4.0
 matplotlib
 matplotlib_venn
+numpy
