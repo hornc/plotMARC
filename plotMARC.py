@@ -132,7 +132,7 @@ def plot(name, categories, dates):
     # custom bar chart approach
 
     #hist = plt.hist(sdates, weights=[dates[k] for k in sdates], bins=bins, range=(BIN_EARLY - BINSIZE, thisyear + BINSIZE))
-    plt.suptitle(name.title(), fontsize=16, fontweight='bold')
+    plt.suptitle(name, fontsize=16, fontweight='bold')
     axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
     axes[1].set_xticks(range(len(dates)))
     axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
@@ -151,10 +151,8 @@ if __name__ == '__main__':
     parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
     args = parser.parse_args()
 
-    if args.title:
-        name = args.title
-    else:
-        name = os.path.basename(os.getcwd())
+    # Default name
+    name = os.path.basename(os.getcwd()).title()
 
     if args.import_:
         print(f"Import data from {args.import_}...")
@@ -162,6 +160,9 @@ if __name__ == '__main__':
     else:
         print("Extract data from MARC records...")
         categories, dates = marc_extract()
+
+    if args.title:
+        name = args.title
 
     # Output tsv data to STDOUT:
     output_tsv(name, categories, dates)
