@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import csv
+import numpy as np
 import os
 import re
 from datetime import datetime
@@ -126,6 +127,17 @@ def plot(name, categories, dates):
     Output plot to <name>.png
     """
     fig, axes = plt.subplots(2, 1)
+
+    if categories[0] > 0:
+        # Draw a No ID circle, if there are any
+        noid = categories[0] / sum(categories[1:])
+        r = np.sqrt(noid / np.pi)
+        x, y = (0.8 + r, -0.2)
+        axes[0].annotate(categories[0], xy=(min(2, x), max(-0.5, y)))
+        axes[0].annotate('No IDs', xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
+        circle = plt.Circle((x, y), r, color='silver')
+        axes[0].add_patch(circle)
+
     venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
     sdates = sorted(dates)
     bins = []
@@ -143,7 +155,7 @@ def plot(name, categories, dates):
     axes[0].set_title(I_LABEL, fontsize=14)
     axes[1].set_title(D_LABEL, fontsize=14, loc='left')
     axes[1].set_ylabel('records', fontstyle='italic')
-
+    axes[0].set_xlim(-1, 2)
     plt.savefig(f'{name}.png')
 
 
