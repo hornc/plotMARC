@@ -27,8 +27,9 @@ BIN_EARLY = 1400  # no date / suspicious date bin
 DATE_LABELS = ('<1400', '<1700')
 I_LABEL = 'Bibliographic Identifiers'
 D_LABEL = 'Publication Dates'
-ID_CATS = ['No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
+ID_CATS = ['Other / No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
 ID_CATS_ABBR = ['No_IDs', 'ISBN', 'LCCN', 'IS+LC', 'OCN', 'IS+OC', 'LC+OC', 'All_3_IDs']
+RE_OCLC = re.compile(r'.*(\(OCoLC|OCoOC|ocm|ocn)')
 
 
 def output_tsv(name, venn, dates):
@@ -72,6 +73,7 @@ def marc_extract():
                 isbns = record.get_fields('020')
                 lccn = record['010']
                 oclc = record.get_fields('035')
+                oclc = [v for v in oclc if RE_OCLC.match(v.value())]
                 pub = record['260']
                 cat = bool(isbns) + bool(lccn) * 2 + bool(oclc) * 4
                 categories[cat] += 1
@@ -134,7 +136,7 @@ def plot(name, categories, dates):
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
         axes[0].annotate(categories[0], xy=(min(2, x), max(-0.5, y)))
-        axes[0].annotate('No IDs', xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
+        axes[0].annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
         circle = plt.Circle((x, y), r, color='silver')
         axes[0].add_patch(circle)
 
