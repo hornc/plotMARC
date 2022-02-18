@@ -29,6 +29,7 @@ I_LABEL = 'Bibliographic Identifiers'
 D_LABEL = 'Publication Dates'
 ID_CATS = ['No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
 ID_CATS_ABBR = ['No_IDs', 'ISBN', 'LCCN', 'IS+LC', 'OCN', 'IS+OC', 'LC+OC', 'All_3_IDs']
+RE_OCLC = re.compile(r'.*(\(OCoLC|OCoOC|ocm|ocn)')
 
 
 def output_tsv(name, venn, dates):
@@ -72,6 +73,7 @@ def marc_extract():
                 isbns = record.get_fields('020')
                 lccn = record['010']
                 oclc = record.get_fields('035')
+                oclc = [v for v in oclc if RE_OCLC.match(v.value())]
                 pub = record['260']
                 cat = bool(isbns) + bool(lccn) * 2 + bool(oclc) * 4
                 categories[cat] += 1
