@@ -1,6 +1,6 @@
 # plotMARC
 
-A command line tool to visually characterise a bibliographic collection in terms of publication dates and avaialble bibliographic identifier coverage.
+A command line tool to visually characterise a bibliographic collection in terms of publication dates and available bibliographic identifier coverage.
 
 ## Basic usage
 
