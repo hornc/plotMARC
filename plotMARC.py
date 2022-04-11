@@ -36,7 +36,6 @@ def output_tsv(name, venn, dates):
     print(name.title())
     print(I_LABEL)
     print('\t'.join(ID_CATS_ABBR))
-
     print('\t'.join([str(v) for v in venn]))
     print(D_LABEL)
     date_output(dates)
@@ -124,27 +123,42 @@ def tsv_import(filename):
     return name, categories, dates
 
 
+def value_formatter(v):
+    """
+    ``subset_label_formatter`` function to be passed to venn3() to format the value
+    labels that describe the size of each subset.
+    """
+    return format(v, ',')
+
+
 def plot(name, categories, dates):
     """
     Output plot to <name>.png
     """
     fig, axes = plt.subplots(2, 1)
 
+    # Draw a No ID circle, if there are any
     if categories[0] > 0:
-        # Draw a No ID circle, if there are any
         noid = categories[0] / sum(categories[1:])
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
-        axes[0].annotate(categories[0], xy=(min(2, x), max(-0.5, y)))
+        axes[0].annotate(value_formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
         axes[0].annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
         circle = plt.Circle((x, y), r, color='silver')
         axes[0].add_patch(circle)
 
-    venn = venn3(subsets=categories[1:], set_labels=('ISBN', 'LCCN', 'OCN'), ax=axes[0], normalize_to=1)
+    venn = venn3(
+            subsets=categories[1:],
+            set_labels=('ISBN', 'LCCN', 'OCN'),
+            ax=axes[0],
+            normalize_to=1,
+            subset_label_formatter=value_formatter)
+
     sdates = sorted(dates)
     bins = []
     if len(sdates) > 2:
         bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2]) // BINSIZE)]
+
     #bins = len(dates)
     # TODO: follow https://stackoverflow.com/questions/58183804/matplotlib-histogram-with-equal-bars-width for
     # custom bar chart approach
