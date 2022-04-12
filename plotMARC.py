@@ -135,44 +135,51 @@ def plot(name, categories, dates, values=True, noids=True, scale=1):
     """
     Output plot to <name>.png
     """
-    fig, axes = plt.subplots(2, 1)
+    sdates = sorted(dates)
+    bins = []
+    if len(sdates) > 2:
+        plots = 2
+        bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2]) // BINSIZE)]
+    else:
+        plots = 1
+
+    fig, axes = plt.subplots(plots, 1)
     formatter = value_formatter if values else lambda v: ''
+
+    if plots == 2:
+        ax_ids = axes[0]
+        ax_dates = axes[1]
+    else:
+        ax_ids = axes
+        ax_dates = None
 
     # Draw a No ID circle, if there are any
     if noids and categories[0] > 0:
         noid = categories[0] / sum(categories[1:])
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
-        axes[0].annotate(formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
-        axes[0].annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
+        ax_ids.annotate(formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
+        ax_ids.annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
         circle = plt.Circle((x, y), r, color='silver')
-        axes[0].add_patch(circle)
+        ax_ids.add_patch(circle)
 
     venn = venn3(
             subsets=categories[1:],
             set_labels=('ISBN', 'LCCN', 'OCN'),
-            ax=axes[0],
+            ax=ax_ids,
             normalize_to=scale,
             subset_label_formatter=formatter)
 
-    sdates = sorted(dates)
-    bins = []
-    if len(sdates) > 2:
-        bins = [0, BIN_EARLY] + [sdates[2] + BINSIZE * i for i in range((sdates[-1] - sdates[2]) // BINSIZE)]
-
-    #bins = len(dates)
-    # TODO: follow https://stackoverflow.com/questions/58183804/matplotlib-histogram-with-equal-bars-width for
-    # custom bar chart approach
-
-    #hist = plt.hist(sdates, weights=[dates[k] for k in sdates], bins=bins, range=(BIN_EARLY - BINSIZE, thisyear + BINSIZE))
     plt.suptitle(name, fontsize=16, fontweight='bold')
-    axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
-    axes[1].set_xticks(range(len(dates)))
-    axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
-    axes[0].set_title(I_LABEL, fontsize=14)
-    axes[1].set_title(D_LABEL, fontsize=14, loc='left')
-    axes[1].set_ylabel('records', fontstyle='italic')
-    axes[0].set_xlim(-1, 2)
+    ax_ids.set_title(I_LABEL, fontsize=14)
+    ax_ids.set_xlim(-1, 2)
+    if ax_dates:
+        axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
+        axes[1].set_xticks(range(len(dates)))
+        axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
+        axes[1].set_title(D_LABEL, fontsize=14, loc='left')
+        axes[1].set_ylabel('records', fontstyle='italic')
+
     plt.savefig(f'{name}.png')
 
 
