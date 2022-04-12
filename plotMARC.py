@@ -131,18 +131,19 @@ def value_formatter(v):
     return format(v, ',')
 
 
-def plot(name, categories, dates):
+def plot(name, categories, dates, values=True, noids=True):
     """
     Output plot to <name>.png
     """
     fig, axes = plt.subplots(2, 1)
+    formatter = value_formatter if values else lambda v: ''
 
     # Draw a No ID circle, if there are any
-    if categories[0] > 0:
+    if noids and categories[0] > 0:
         noid = categories[0] / sum(categories[1:])
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
-        axes[0].annotate(value_formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
+        axes[0].annotate(formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
         axes[0].annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
         circle = plt.Circle((x, y), r, color='silver')
         axes[0].add_patch(circle)
@@ -152,7 +153,7 @@ def plot(name, categories, dates):
             set_labels=('ISBN', 'LCCN', 'OCN'),
             ax=axes[0],
             normalize_to=1,
-            subset_label_formatter=value_formatter)
+            subset_label_formatter=formatter)
 
     sdates = sorted(dates)
     bins = []
@@ -181,6 +182,8 @@ if __name__ == '__main__':
     parser.add_argument('--quiet', '-q', help='Suppress pymarc reader warnings', action='store_true')
     parser.add_argument('--title', '-t', help='Title')
     parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
+    parser.add_argument('--values', '-v', help='Suppress values on Venn diagram', action='store_true')
+    parser.add_argument('--noids', '-n', help='Suppress No-ids circle on Venn diagram', action='store_true')
     args = parser.parse_args()
 
     # Default name
@@ -200,5 +203,5 @@ if __name__ == '__main__':
     output_tsv(name, categories, dates)
 
     # Output plot to <name>.png
-    plot(name, categories, dates)
+    plot(name, categories, dates, values=not args.values, noids=not args.noids)
 
