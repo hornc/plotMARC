@@ -131,7 +131,7 @@ def value_formatter(v):
     return format(v, ',')
 
 
-def plot(name, categories, dates, values=True, noids=True):
+def plot(name, categories, dates, values=True, noids=True, scale=1):
     """
     Output plot to <name>.png
     """
@@ -152,7 +152,7 @@ def plot(name, categories, dates, values=True, noids=True):
             subsets=categories[1:],
             set_labels=('ISBN', 'LCCN', 'OCN'),
             ax=axes[0],
-            normalize_to=1,
+            normalize_to=scale,
             subset_label_formatter=formatter)
 
     sdates = sorted(dates)
@@ -184,6 +184,7 @@ if __name__ == '__main__':
     parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
     parser.add_argument('--values', '-v', help='Suppress values on Venn diagram', action='store_true')
     parser.add_argument('--noids', '-n', help='Suppress No-ids circle on Venn diagram', action='store_true')
+    parser.add_argument('--scale', '-s', help='Scale factor', type=float, default=1.0)
     args = parser.parse_args()
 
     # Default name
@@ -203,5 +204,5 @@ if __name__ == '__main__':
     output_tsv(name, categories, dates)
 
     # Output plot to <name>.png
-    plot(name, categories, dates, values=not args.values, noids=not args.noids)
+    plot(name, categories, dates, values=not args.values, noids=not args.noids, scale=args.scale)
 
