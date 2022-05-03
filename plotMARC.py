@@ -191,7 +191,7 @@ if __name__ == '__main__':
     parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
     parser.add_argument('--values', '-v', help='Suppress values on Venn diagram', action='store_true')
     parser.add_argument('--noids', '-n', help='Suppress No-ids circle on Venn diagram', action='store_true')
-    parser.add_argument('--scale', '-s', help='Scale factor', type=float, default=1.0)
+    parser.add_argument('--scale', '-s', help='Scale factor (area)', type=float, default=1.0)
     args = parser.parse_args()
 
     # Default name
