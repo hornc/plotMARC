@@ -131,7 +131,7 @@ def value_formatter(v):
     return format(v, ',')
 
 
-def plot(name, categories, dates, values=True, noids=True, scale=1):
+def plot(name, categories, dates, values=True, other=True, scale=1):
     """
     Output plot to <name>.png
     """
@@ -153,8 +153,8 @@ def plot(name, categories, dates, values=True, noids=True, scale=1):
         ax_ids = axes
         ax_dates = None
 
-    # Draw a No ID circle, if there are any
-    if noids and categories[0] > 0:
+    # Draw an Other/No ID circle, if there are any
+    if other and categories[0] > 0:
         noid = categories[0] / sum(categories[1:])
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
@@ -188,9 +188,9 @@ if __name__ == '__main__':
     parser.add_argument('--debug', '-d', help='Turn on debug output', action='store_true')
     parser.add_argument('--quiet', '-q', help='Suppress pymarc reader warnings', action='store_true')
     parser.add_argument('--title', '-t', help='Title')
-    parser.add_argument('--import', '-i', help='Import high-level data from tsv', dest='import_')
-    parser.add_argument('--values', '-v', help='Suppress values on Venn diagram', action='store_true')
-    parser.add_argument('--noids', '-n', help='Suppress No-ids circle on Venn diagram', action='store_true')
+    parser.add_argument('--import', '-i', help='Import data from tsv', dest='import_')
+    parser.add_argument('--no-values', help='Suppress values on Venn diagram', action='store_true')
+    parser.add_argument('--no-other', help='Suppress Other/No-ID circle on Venn diagram', action='store_true')
     parser.add_argument('--scale', '-s', help='Scale factor (area)', type=float, default=1.0)
     args = parser.parse_args()
 
@@ -211,5 +211,5 @@ if __name__ == '__main__':
     output_tsv(name, categories, dates)
 
     # Output plot to <name>.png
-    plot(name, categories, dates, values=not args.values, noids=not args.noids, scale=args.scale)
+    plot(name, categories, dates, values=not args.no_values, other=not args.no_other, scale=args.scale)
 
