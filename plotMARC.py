@@ -74,6 +74,8 @@ def marc_extract():
                 oclc = record.get_fields('035')
                 oclc = [v for v in oclc if RE_OCLC.match(v.value())]
                 pub = record['260']
+                if not pub:
+                    pub = record['264']
                 cat = bool(isbns) + bool(lccn) * 2 + bool(oclc) * 4
                 categories[cat] += 1
                 year = None
