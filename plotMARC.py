@@ -193,7 +193,10 @@ def summarise_records(name, cats):
 
     def pprint(label, category, total):
         # percentage print (tsv)
-        print('\t'.join([label, str(category), f'{category/total:.2%}']))
+        print('\t'.join([
+            label,
+            str(category).rjust(len(str(total))),
+            f'{category/total:.2%}'.rjust(7)]))
 
     print(f'\nSummary for {name}:')
     print('Record counts for bibliographic identifiers present in this collection:')
