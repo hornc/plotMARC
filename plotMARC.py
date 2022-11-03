@@ -187,6 +187,28 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
     plt.savefig(outfile)
 
 
+def summarise_records(name, cats):
+    def catsum(*positions):
+        return sum(cats[c] for c in positions)
+
+    def pprint(label, category, total):
+        # percentage print (tsv)
+        print('\t'.join([label, str(category), f'{category/total:.2%}']))
+
+    print(f'\nSummary for {name}:')
+    print('Record counts for bibliographic identifiers present in this collection:')
+    records = sum(cats)
+    noid = cats[0]
+    isbn = catsum(1, 3, 5, 7)
+    lccn = catsum(2, 3, 6, 7)
+    oclc = catsum(4, 5, 6, 7)
+    pprint('Total:', records, records)
+    pprint('ISBN:', isbn, records)
+    pprint('LCCN:', lccn, records)
+    pprint('OCN :', oclc, records)
+    pprint('No Id:', noid, records)
+    print()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
     parser.add_argument('--debug', '-d', help='Turn on debug output', action='store_true')
@@ -213,6 +235,9 @@ if __name__ == '__main__':
 
     # Output tsv data to STDOUT:
     output_tsv(name, categories, dates)
+
+    # Output a summary of total records and identifiers found:
+    summarise_records(name, categories)
 
     # Output plot to <name>.png
     plot(name, categories, dates, values=not args.no_values, other=not args.no_other, scale=args.scale)
