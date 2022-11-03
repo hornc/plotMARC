@@ -182,7 +182,9 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
         axes[1].set_title(D_LABEL, fontsize=14, loc='left')
         axes[1].set_ylabel('records', fontstyle='italic')
 
-    plt.savefig(f'{name}.png')
+    outfile = f'{name}.png'
+    print(f'Writing image output to "{outfile}"')
+    plt.savefig(outfile)
 
 
 if __name__ == '__main__':
