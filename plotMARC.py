@@ -197,20 +197,23 @@ def summarise_records(name, cats):
             label,
             str(category).rjust(len(str(total))),
             f'{category/total:.2%}'.rjust(7)]))
-
-    print(f'\nSummary for {name}:')
-    print('Record counts for bibliographic identifiers present in this collection:')
+ 
     records = sum(cats)
-    noid = cats[0]
-    isbn = catsum(1, 3, 5, 7)
-    lccn = catsum(2, 3, 6, 7)
-    oclc = catsum(4, 5, 6, 7)
-    pprint('Total:', records, records)
-    pprint('ISBN:', isbn, records)
-    pprint('LCCN:', lccn, records)
-    pprint('OCN :', oclc, records)
-    pprint('No Id:', noid, records)
-    print()
+    if records:
+        print(f'\nSummary for {name}:')
+        print('Record counts for bibliographic identifiers present in this collection:')
+
+        noid = cats[0]
+        isbn = catsum(1, 3, 5, 7)
+        lccn = catsum(2, 3, 6, 7)
+        oclc = catsum(4, 5, 6, 7)
+        pprint('Total:', records, records)
+        pprint('ISBN:', isbn, records)
+        pprint('LCCN:', lccn, records)
+        pprint('OCN :', oclc, records)
+        pprint('No Id:', noid, records)
+        print()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=ABOUT, allow_abbrev=True)
