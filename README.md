@@ -12,24 +12,34 @@ representing a bibliographic collection, run:
 The script will process the MARC files using [pymarc](https://gitlab.com/pymarc/pymarc),
 and produce a single `<directoryname>.png` image containing a 3-way Venn diagram displaying the number of records with the following bibliographic identifiers:
   
-  * ISBN
-  * OCN ([OCLC](https://www.oclc.org/) number)
-  * LCCN ([Library of Congress](https://loc.gov/) number)
+* ISBN
+* OCN ([OCLC](https://www.oclc.org/) number)
+* LCCN ([Library of Congress](https://loc.gov/) number)
   
-  and a histogram showing the publication dates in the bib records.
+and a histogram showing the publication dates in the bib records.
 
 ### Example output
 
 ![Example plotMARC output plot](sample/sample.png)
 
+
+```
+Summary for Test Collection:
+Record counts for bibliographic identifiers present in this collection:
+Total:  248632	100.00%
+ISBN:   175593	 70.62%
+LCCN:   130780	 52.60%
+OCN :    82801	 33.30%
+No Id:   42263	 17.00%
+```
   
-  ## [Requirements](requirements.txt)
+## [Requirements](requirements.txt)
  
-  * [pymarc](https://gitlab.com/pymarc/pymarc)
-  * [matplotlib](https://matplotlib.org/)
-  * [matplotlib_venn](https://github.com/konstantint/matplotlib-venn)
+* [pymarc](https://gitlab.com/pymarc/pymarc)
+* [matplotlib](https://matplotlib.org/)
+* [matplotlib_venn](https://github.com/konstantint/matplotlib-venn)
  
-  Install these using pip:
+Install these using pip:
  
      pip install -r requirements.txt
 
