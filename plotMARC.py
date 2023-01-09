@@ -69,7 +69,11 @@ def marc_extract():
             for record in records:
                 if not record:
                     continue
-                isbns = record.get_fields('020')
+                isbns = []
+                for f in record.get_fields('020'):
+                    a = f.get_subfields('a', 'z')
+                    if a:
+                        isbns += a
                 lccn = record['010']
                 oclc = record.get_fields('035')
                 oclc = [v for v in oclc if RE_OCLC.match(v.value())]
