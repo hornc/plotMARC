@@ -24,7 +24,7 @@ LIMIT = 1000
 RE_DATE = re.compile(r'[12][0-9]{3}')
 BIN_NORMAL = 1700
 BIN_EARLY = 1400  # no date / suspicious date bin
-DATE_LABELS = ('<1400', '<1700')
+DATE_LABELS = ['N/F', '<1700']  # N/F = No valid date found
 I_LABEL = 'Bibliographic Identifiers'
 D_LABEL = 'Publication Dates'
 ID_CATS = ['Other / No IDs', 'ISBN only', 'LCCN only', 'ISBN & LCCN', 'OCN only', 'ISBN & OCN', 'LCCN & OCN', 'All 3 IDs']
@@ -49,6 +49,19 @@ def date_output(dates):
     return dates
 
 
+def get_dates(record):
+    for tag, code in (('260', 'c'), ('264', 'c'), ('362', 'a')):
+        for field in record.get_fields(tag):
+            if subfields := field.get_subfields(code):
+                if m := RE_DATE.findall(subfields[0]):
+                    return m
+    # Date not found in fields, try 008
+    if dates := record['008'].value():
+        if m := RE_DATE.findall(dates[7:15].replace('u', '0')):
+            return m
+    return None
+
+
 def marc_extract():
     """
     Extract identifier categories and year of publication histogram data
@@ -69,6 +82,7 @@ def marc_extract():
             for record in records:
                 if not record:
                     continue
+                control = record['001'].value()
                 isbns = []
                 for f in record.get_fields('020'):
                     a = f.get_subfields('a', 'z')
@@ -77,28 +91,22 @@ def marc_extract():
                 lccn = record['010']
                 oclc = record.get_fields('035')
                 oclc = [v for v in oclc if RE_OCLC.match(v.value())]
-                pub = record['260']
-                if not pub:
-                    pub = record['264']
+                date = get_dates(record)
                 cat = bool(isbns) + bool(lccn) * 2 + bool(oclc) * 4
                 categories[cat] += 1
                 year = None
-                if pub:
-                    date = pub.get_subfields('c')
-                    if date:
-                        m = RE_DATE.findall(date[0])
-                        if m:
-                            year = max([0] + [int(v) for v in m if int(v) <= thisyear])
-                            if year > BIN_NORMAL:
-                                dbin = (year // BINSIZE) * BINSIZE
-                                if dates.get(dbin):
-                                    dates[dbin] += 1
-                                else:
-                                    dates[dbin] = 1
-                            elif year > BIN_EARLY:
-                                dates[BIN_EARLY] += 1
-                            else:
-                                year = None
+                if date:
+                    year = max([0] + [int(v) for v in date if int(v) <= thisyear])
+                    if year > BIN_NORMAL:
+                        dbin = (year // BINSIZE) * BINSIZE
+                        if dates.get(dbin):
+                            dates[dbin] += 1
+                        else:
+                            dates[dbin] = 1
+                    elif year > BIN_EARLY:
+                        dates[BIN_EARLY] += 1
+                    else:
+                        year = None
                 if not year:
                     dates[0] += 1
                 i += 1
@@ -182,7 +190,7 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
     if ax_dates:
         bars = axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
         axes[1].set_xticks(range(len(dates)))
-        axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
+        axes[1].set_xticklabels(DATE_LABELS + sdates[2:], rotation=60)
         axes[1].set_title(D_LABEL, fontsize=14, loc='left')
         axes[1].set_ylabel('records', fontstyle='italic')
         axes[1].yaxis.get_major_locator().set_params(integer=True)
