@@ -180,11 +180,13 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
     ax_ids.set_title(I_LABEL, fontsize=14)
     ax_ids.set_xlim(-1, 2)
     if ax_dates:
-        axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
+        bars = axes[1].bar(range(len(dates)), [dates[k] for k in sdates], width=1, edgecolor='k')
         axes[1].set_xticks(range(len(dates)))
         axes[1].set_xticklabels(['<1400', '<1700'] + sdates[2:], rotation=60)
         axes[1].set_title(D_LABEL, fontsize=14, loc='left')
         axes[1].set_ylabel('records', fontstyle='italic')
+        axes[1].yaxis.get_major_locator().set_params(integer=True)
+        axes[1].bar_label(bars, label_type='center')
 
     outfile = f'{name}.png'
     print(f'Writing image output to "{outfile}"')
