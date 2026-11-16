@@ -1,4 +1,4 @@
 pymarc >= 4.0
-matplotlib
-matplotlib_venn
+matplotlib >= 3.4
+matplotlib_venn >= 0.11
 numpy

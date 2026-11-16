@@ -88,7 +88,8 @@ def marc_extract():
                     a = f.get_subfields('a', 'z')
                     if a:
                         isbns += a
-                lccn = record['010']
+                fields = record.get_fields('010')
+                lccn = fields[0] if fields else None
                 oclc = record.get_fields('035')
                 oclc = [v for v in oclc if RE_OCLC.match(v.value())]
                 date = get_dates(record)
