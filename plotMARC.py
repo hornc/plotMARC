@@ -170,22 +170,41 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
         ax_ids = axes
         ax_dates = None
 
+    colors = ('red', 'green', 'blue') # ISBN, LCCN, OCN
+    label_colors = ('#c00000', '#007000', '#0000c0') # slightly darker
+
+    venn = venn3(
+            subsets=categories[1:],
+            set_labels=('ISBN', 'LCCN', 'OCN'),
+            set_colors=colors,
+            ax=ax_ids,
+            normalize_to=scale,
+            subset_label_formatter=formatter,
+    )
+
+    # Style values
+    for text in venn.subset_labels:
+        if text is not None:
+            text.set_fontsize(8)
+
+    # Style bib. identifier labels
+    for text, c in zip(venn.set_labels, label_colors):
+        if text is not None:
+            text.set_color(c)
+            text.set_fontweight('normal')
+            text.set_fontsize(12)
+
     # Draw an Other/No ID circle, if there are any
     if other and categories[0] > 0:
         noid = categories[0] / sum(categories[1:])
         r = np.sqrt(noid / np.pi)
         x, y = (0.8 + r, -0.2)
         ax_ids.annotate(formatter(categories[0]), xy=(min(2, x), max(-0.5, y)))
-        ax_ids.annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=12, ha='center', va='top')
+        ax_ids.annotate(ID_CATS[0], xy=(min(2, x), max(-0.5, y - r)), fontsize=10, ha='left', va='top')
+
         circle = plt.Circle((x, y), r, color='silver')
         ax_ids.add_patch(circle)
 
-    venn = venn3(
-            subsets=categories[1:],
-            set_labels=('ISBN', 'LCCN', 'OCN'),
-            ax=ax_ids,
-            normalize_to=scale,
-            subset_label_formatter=formatter)
 
     plt.suptitle(name, fontsize=16, fontweight='bold')
     ax_ids.set_title(I_LABEL, fontsize=14)
@@ -200,7 +219,7 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
         axes[1].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
         axes[1].grid(axis='y', which='major', color='lightgrey', linewidth=0.5)
         axes[1].set_axisbelow(True)  # gridlines _behind_ bars
-        axes[1].bar_label(bars, labels=[f'{v:,.0f}' for v in bars.datavalues], label_type='center')
+        axes[1].bar_label(bars, labels=[f'{v:,.0f}' for v in bars.datavalues], label_type='center', fontsize=8)
 
     outfile = f'{name}.png'
     print(f'Writing image output to "{outfile}"')
