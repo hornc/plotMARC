@@ -4,9 +4,11 @@ import csv
 import numpy as np
 import os
 import re
+
 from datetime import datetime
 from pymarc import MARCReader
 from matplotlib import pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
 from matplotlib_venn import venn3
 
 
@@ -195,7 +197,10 @@ def plot(name, categories, dates, values=True, other=True, scale=1):
         axes[1].set_title(D_LABEL, fontsize=14, loc='left')
         axes[1].set_ylabel('records', fontstyle='italic')
         axes[1].yaxis.get_major_locator().set_params(integer=True)
-        axes[1].bar_label(bars, label_type='center')
+        axes[1].yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+        axes[1].grid(axis='y', which='major', color='lightgrey', linewidth=0.5)
+        axes[1].set_axisbelow(True)  # gridlines _behind_ bars
+        axes[1].bar_label(bars, labels=[f'{v:,.0f}' for v in bars.datavalues], label_type='center')
 
     outfile = f'{name}.png'
     print(f'Writing image output to "{outfile}"')
